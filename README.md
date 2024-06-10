@@ -29,3 +29,7 @@ em++ main.cpp -s WASM=1 -s EXPORTED_FUNCTIONS=_malloc,_mfcc,_free -s EXPORTED_RU
 
 1. create sample `ffmpeg -i input.mp3 -ac 1 -ar 8000 -acodec pcm_s16le -f s16le output.raw `
 2. run https://localhost/demo.html
+
+## Alternatives
+
+- https://github.com/miaobin/web-mfcc/
