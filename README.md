@@ -33,3 +33,4 @@ em++ main.cpp -s WASM=1 -s EXPORTED_FUNCTIONS=_malloc,_mfcc,_free -s EXPORTED_RU
 ## Alternatives
 
 - https://github.com/miaobin/web-mfcc/
+- https://github.com/meyda/meyda/blob/ecf256616d43292c82cbf96e60a91b19ca10eb64/src/extractors/mfcc.ts
