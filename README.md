@@ -14,20 +14,25 @@ ln -sf /usr/bin/python3.11 /usr/bin/python
 
 # Emscripten
 git clone --depth=1 --branch main https://github.com/emscripten-core/emsdk/
-(cd emsdk && ./emsdk install 3.1.47)
-(cd emsdk && ./emsdk activate 3.1.47)
+(cd emsdk && ./emsdk install 3.1.61)
+(cd emsdk && ./emsdk activate 3.1.61)
 source ./emsdk/emsdk_env.sh
 
 # LibrosaCpp
 git clone --depth=1 --branch main https://github.com/ewan-xu/LibrosaCpp
 
 mkdir wasm
-em++ main.cpp -s WASM=1 -s EXPORTED_FUNCTIONS=_malloc,_mfcc,_free -s EXPORTED_RUNTIME_METHODS=ccall -s STACK_SIZE=1MB -s MODULARIZE=1 -s EXPORT_NAME=createMFCC -s INVOKE_RUN=0 -s EXIT_RUNTIME=1 -s MAXIMUM_MEMORY=4gb -s IMPORTED_MEMORY=1 -s ALLOW_MEMORY_GROWTH=1 -s ENVIRONMENT=web -O3 -o wasm/mfcc.js
+# -sSTACK_SIZE=24MB can handle 1h of 8000Hz PCM
+em++ main.cpp -pthread -msimd128 -O3 \
+	-sSTACK_SIZE=24MB -sINITIAL_MEMORY=25MB -sMAXIMUM_MEMORY=4gb -sALLOW_MEMORY_GROWTH=1 -sMALLOC=mimalloc \
+	-sEXPORTED_FUNCTIONS=_malloc,_mfcc,___wasm_init_memory_flag -sEXPORTED_RUNTIME_METHODS=ccall \
+	-sMODULARIZE=1 -sEXPORT_NAME=createMFCC -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
+	-sWASM=1 -sENVIRONMENT=worker -o wasm/mfcc.js
 ```
 
 ## Usage
 
-1. create sample `ffmpeg -i input.mp3 -ac 1 -ar 8000 -acodec pcm_s16le -f s16le output.raw `
+1. create sample `ffmpeg -i input.mp3 -ac 1 -ar 8000 -acodec pcm_s16le -f s16le output.raw`
 2. run https://localhost/demo.html
 
 ## Alternatives
