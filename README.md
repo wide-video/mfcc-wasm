@@ -22,9 +22,12 @@ source ./emsdk/emsdk_env.sh
 git clone --depth=1 --branch main https://github.com/ewan-xu/LibrosaCpp
 
 mkdir wasm
+# -pthread not really needed, but for memory reset https://github.com/emscripten-core/emscripten/issues/22093
+# -msimd128 does have slight positive performance impact (i.e. 16.7sec vs 16.5sec on a test case)
 # -sSTACK_SIZE=24MB can handle 1h of 8000Hz PCM
+# -sMALLOC=mimalloc doesnt seem to affect performance, but increases artifact size
 em++ main.cpp -pthread -msimd128 -O3 \
-	-sSTACK_SIZE=24MB -sINITIAL_MEMORY=25MB -sMAXIMUM_MEMORY=4gb -sALLOW_MEMORY_GROWTH=1 -sMALLOC=mimalloc \
+	-sSTACK_SIZE=24MB -sINITIAL_MEMORY=25MB -sMAXIMUM_MEMORY=4gb -sALLOW_MEMORY_GROWTH=1 \
 	-sEXPORTED_FUNCTIONS=_malloc,_mfcc,___wasm_init_memory_flag -sEXPORTED_RUNTIME_METHODS=ccall \
 	-sMODULARIZE=1 -sEXPORT_NAME=createMFCC -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
 	-sWASM=1 -sENVIRONMENT=worker -o wasm/mfcc.js
