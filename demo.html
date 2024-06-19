@@ -5,7 +5,7 @@ const pcm = new Int16Array(await (await fetch("output.raw")).arrayBuffer());
 const SAMPLE_RATE = 8000;
 const n_mfcc = 26;
 
-const Module = await createMFCC({wasmMemory:new WebAssembly.Memory({initial:400, maximum:65536})});
+const Module = await createMFCC();
 const pcmPtr = Module._malloc(4 * pcm.length);
 const lenPtr = Module._malloc(4);
 Module.HEAP32.set(new Float32Array(pcm), pcmPtr >> 2);
@@ -24,7 +24,7 @@ for(let i = 0; i < size; i++) {
 	result[i] = Module.HEAPF32.slice(begin, begin + n_mfcc);
 }
 
-Module._free(pcmPtr, lenPtr, mfccsPtr);
+Module.HEAPU32[Module.___wasm_init_memory_flag >> 2] = 0;
 console.log(result);
 })()
 </script>
