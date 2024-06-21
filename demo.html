@@ -6,27 +6,26 @@ const pcm = new Int16Array(await (await fetch("output.raw")).arrayBuffer());
 const SAMPLE_RATE = 8000;
 const n_mfcc = 26;
 
-const wasmMemory = new WebAssembly.Memory({initial:400, maximum:65536});
-const Module = await createMFCC({wasmMemory});
-const pcmPtr = Module._malloc(4 * pcm.length);
-const lenPtr = Module._malloc(4);
-Module.HEAP32.set(new Float32Array(pcm), pcmPtr >> 2);
-Module.HEAP32[lenPtr >> 2] = pcm.length;
+const wasmMemory = new WebAssembly.Memory({initial:401, maximum:65536});
+const module = await createMFCC({wasmMemory});
+const pcmPtr = module._malloc(4 * pcm.length);
+const lenPtr = module._malloc(4);
+module.HEAP32.set(new Float32Array(pcm), pcmPtr >> 2);
+module.HEAP32[lenPtr >> 2] = pcm.length;
 
-const mfccsPtr = Module.ccall("mfcc", "number",
+const mfccsPtr = module.ccall("mfcc", "number",
 	["number", "number", "number", "number", "number", "string", "boolean", "string",
 	"number", "number", "number", "number", "number", "boolean", "number"],
 	[pcmPtr, lenPtr, SAMPLE_RATE, 512, 128, "hann", true, "reflect",
 	2, 40, 80, 7600, n_mfcc, true, 2]);
 
 const result = [];
-const size = Module.HEAP32[lenPtr >> 2] / n_mfcc;
+const size = module.HEAP32[lenPtr >> 2] / n_mfcc;
 for(let i = 0; i < size; i++) {
 	const begin = (mfccsPtr >> 2) + (i * n_mfcc);
-	result[i] = Module.HEAPF32.slice(begin, begin + n_mfcc);
+	result[i] = module.HEAPF32.slice(begin, begin + n_mfcc);
 }
 
-Module.HEAPU32[Module.___wasm_init_memory_flag >> 2] = 0;
 console.log(result);
 })()
 </script>
