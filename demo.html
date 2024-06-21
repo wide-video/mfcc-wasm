@@ -1,11 +1,13 @@
 <script src="wasm/mfcc.js"></script>
 <script>
 (async () => {
+
 const pcm = new Int16Array(await (await fetch("output.raw")).arrayBuffer());
 const SAMPLE_RATE = 8000;
 const n_mfcc = 26;
 
-const Module = await createMFCC();
+const wasmMemory = new WebAssembly.Memory({initial:400, maximum:65536});
+const Module = await createMFCC({wasmMemory});
 const pcmPtr = Module._malloc(4 * pcm.length);
 const lenPtr = Module._malloc(4);
 Module.HEAP32.set(new Float32Array(pcm), pcmPtr >> 2);
