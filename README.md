@@ -23,10 +23,10 @@ git clone --depth=1 --branch main https://github.com/ewan-xu/LibrosaCpp
 
 mkdir wasm
 # -msimd128 does have slight positive performance impact (i.e. 16.7sec vs 16.5sec on a test case)
-# -sSTACK_SIZE=24MB can handle 1h of 8000Hz PCM
+# -sSTACK_SIZE=25MB can handle 1h of 8192Hz PCM
 # -sMALLOC=mimalloc doesnt seem to affect performance, but increases artifact size
 em++ main.cpp -msimd128 -O3 \
-	-sSTACK_SIZE=24MB -sINITIAL_MEMORY=25MB -sMAXIMUM_MEMORY=4gb -sALLOW_MEMORY_GROWTH=1 -sIMPORTED_MEMORY=1 \
+	-sSTACK_SIZE=24MB -sINITIAL_MEMORY=25MB -sMAXIMUM_MEMORY=4GB -sALLOW_MEMORY_GROWTH=1 -sIMPORTED_MEMORY=1 \
 	-sEXPORTED_FUNCTIONS=_malloc,_mfcc -sEXPORTED_RUNTIME_METHODS=ccall \
 	-sMODULARIZE=1 -sEXPORT_NAME=createMFCC -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
 	-sWASM=1 -sENVIRONMENT=worker -o wasm/mfcc.js
@@ -34,7 +34,7 @@ em++ main.cpp -msimd128 -O3 \
 
 ## Usage
 
-1. create sample `ffmpeg -i input.mp3 -ac 1 -ar 8000 -acodec pcm_s16le -f s16le output.raw`
+1. create sample `ffmpeg -i input.mp3 -ac 1 -ar 8192 -acodec pcm_s16le -f s16le output.raw`
 2. run https://localhost/demo.html
 
 ## Alternatives

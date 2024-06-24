@@ -3,10 +3,10 @@
 (async () => {
 
 const pcm = new Int16Array(await (await fetch("output.raw")).arrayBuffer());
-const SAMPLE_RATE = 8000;
+const SAMPLE_RATE = 8192;
 const n_mfcc = 26;
 
-const wasmMemory = new WebAssembly.Memory({initial:401, maximum:65536});
+const wasmMemory = new WebAssembly.Memory({initial:400, maximum:65536});
 const module = await createMFCC({wasmMemory});
 const pcmPtr = module._malloc(4 * pcm.length);
 const lenPtr = module._malloc(4);
