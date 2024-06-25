@@ -6,7 +6,8 @@ const pcm = new Int16Array(await (await fetch("output.raw")).arrayBuffer());
 const SAMPLE_RATE = 8192;
 const n_mfcc = 26;
 
-const wasmMemory = new WebAssembly.Memory({initial:400, maximum:65536});
+// exactly matches `-pthread -sINITIAL_MEMORY=305MB`
+const wasmMemory = new WebAssembly.Memory({initial:4880, maximum:4880, shared:true});
 const module = await createMFCC({wasmMemory});
 const pcmPtr = module._malloc(4 * pcm.length);
 const lenPtr = module._malloc(4);
@@ -26,6 +27,8 @@ for(let i = 0; i < size; i++) {
 	result[i] = module.HEAPF32.slice(begin, begin + n_mfcc);
 }
 
-console.log(result);
+// reset memory for another createMFCC()
+module.HEAPU32[module.___wasm_init_memory_flag >> 2] = 0;
+
 })()
 </script>

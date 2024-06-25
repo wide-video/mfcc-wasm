@@ -23,18 +23,21 @@ git clone --depth=1 --branch main https://github.com/ewan-xu/LibrosaCpp
 
 mkdir wasm
 # -msimd128 does have slight positive performance impact (i.e. 16.7sec vs 16.5sec on a test case)
-# -sSTACK_SIZE=25MB can handle 1h of 8192Hz PCM
+# -pthread (+___wasm_init_memory_flag) is used so shared memory can be created and sent to a worker
+# -sSTACK_SIZE=4MB can handle 600sec of 8192Hz PCM, 25MB => 3600sec
+# -sINITIAL_MEMORY=305MB can handle 600sec of 8192Hz PCM
+# -sALLOW_MEMORY_GROWTH is not used to avoid chrome crashes
 # -sMALLOC=mimalloc doesnt seem to affect performance, but increases artifact size
-em++ main.cpp -msimd128 -O3 \
-	-sSTACK_SIZE=24MB -sINITIAL_MEMORY=25MB -sMAXIMUM_MEMORY=4GB -sALLOW_MEMORY_GROWTH=1 -sIMPORTED_MEMORY=1 \
-	-sEXPORTED_FUNCTIONS=_malloc,_mfcc -sEXPORTED_RUNTIME_METHODS=ccall \
+em++ main.cpp -msimd128 -pthread -O3 \
+	-sSTACK_SIZE=4MB -sINITIAL_MEMORY=305MB -sIMPORTED_MEMORY=1 \
+	-sEXPORTED_FUNCTIONS=_malloc,_mfcc,___wasm_init_memory_flag -sEXPORTED_RUNTIME_METHODS=ccall \
 	-sMODULARIZE=1 -sEXPORT_NAME=createMFCC -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
 	-sWASM=1 -sENVIRONMENT=worker -o wasm/mfcc.js
 ```
 
 ## Usage
 
-1. create sample `ffmpeg -i input.mp3 -ac 1 -ar 8192 -acodec pcm_s16le -f s16le output.raw`
+1. create sample `ffmpeg -to 600 -i input.mp3 -ac 1 -ar 8192 -acodec pcm_s16le -f s16le output.raw`
 2. run https://localhost/demo.html
 
 ## Alternatives
