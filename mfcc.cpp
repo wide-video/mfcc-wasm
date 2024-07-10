@@ -7,15 +7,17 @@ extern "C" {
 		int n_fft, int n_hop, const string &win, bool center, const string &mode,
 		float power, int n_mels, int fmin, int fmax, int n_mfcc, bool norm, int type) {
 
-		vector<float> x(pcm, pcm + *len);
-		vector<vector<float>> mfcc = librosa::Feature::mfcc(x, sr, n_fft, n_hop, win, center, mode, power, n_mels, fmin, fmax, n_mfcc, norm, type);
+		vector<float> v(pcm, pcm + *len);
+		vector<vector<float>> mfcc = librosa::Feature::mfcc(v, sr, n_fft, n_hop, win, center, mode, power, n_mels, fmin, fmax, n_mfcc, norm, type);
 
-		*len = mfcc.size() * mfcc[0].size();
+		int x = mfcc.size();
+		int y = mfcc[0].size();
+		*len = x * y;
 		float result[*len];
 		int index = 0;
 
-		for(int i = 0; i < mfcc.size(); ++i)
-			for(int j = 0; j < mfcc[i].size(); ++j)
+		for(int i = 0; i < x; ++i)
+			for(int j = 0; j < y; ++j)
 				result[index++] = mfcc[i][j];
 
 		return result;

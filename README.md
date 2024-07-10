@@ -14,8 +14,8 @@ ln -sf /usr/bin/python3.11 /usr/bin/python
 
 # Emscripten
 git clone --depth=1 --branch main https://github.com/emscripten-core/emsdk/
-(cd emsdk && ./emsdk install 3.1.61)
-(cd emsdk && ./emsdk activate 3.1.61)
+(cd emsdk && ./emsdk install 3.1.62)
+(cd emsdk && ./emsdk activate 3.1.62)
 source ./emsdk/emsdk_env.sh
 
 # LibrosaCpp
@@ -28,7 +28,7 @@ mkdir wasm
 # -sINITIAL_MEMORY=305MB can handle 600sec of 8192Hz PCM
 # -sALLOW_MEMORY_GROWTH is not used to avoid chrome crashes
 # -sMALLOC=mimalloc doesnt seem to affect performance, but increases artifact size
-em++ main.cpp -msimd128 -pthread -O3 \
+em++ mfcc.cpp -msimd128 -pthread -Ofast \
 	-sSTACK_SIZE=4MB -sINITIAL_MEMORY=305MB -sIMPORTED_MEMORY=1 \
 	-sEXPORTED_FUNCTIONS=_malloc,_mfcc,___wasm_init_memory_flag -sEXPORTED_RUNTIME_METHODS=ccall \
 	-sMODULARIZE=1 -sEXPORT_NAME=createMFCC -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
