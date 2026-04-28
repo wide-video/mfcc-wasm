@@ -1,5 +1,7 @@
 # mfcc-wasm
 
+This repo is deprecated use [librosa-wasm](https://github.com/wide-video/librosa-wasm)
+
 ## Build
 
 ```sh
